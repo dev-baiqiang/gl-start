@@ -45,15 +45,17 @@ GLFWwindow *initGL() {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return nullptr;
     }
+    glEnable(GL_MULTISAMPLE);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     return window;
 }
 
 static Shader *shader;
 static unsigned int VBO, VAO, EBO;
-static unsigned int texture1, texture2;
+static unsigned int texture1;
 
 void onCreate() {
+
     shader = new Shader("res/vs_texture.glsl", "res/fs_texture.glsl");
 
     float vertices[] = {
@@ -113,36 +115,22 @@ void onCreate() {
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
 
-    // texture 2
+    // sub texture
     // ---------
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                    GL_REPEAT);    // set texture wrapping to GL_REPEAT (default wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load image, create texture and generate mipmaps
-    data = stbi_load("res/awesomeface.png", &width, &height, &nrChannels,
+    data = stbi_load("res/icon.png", &width, &height, &nrChannels,
                      0);
     if (!data) {
         std::cout << "Failed to load texture" << std::endl;
         exit(1);
     }
-    // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(data);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+                    width, height,
+                    GL_RGBA,
+                    GL_UNSIGNED_BYTE,
+                    (void*)data);
 
-    // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
-    // -------------------------------------------------------------------------------------------
-    shader->use(); // don't forget to activate/use the shader before setting uniforms!
-    // either set it manually like so:
-    glUniform1i(glGetUniformLocation(shader->ID, "texture1"), 0);
-    // or set it via the texture class
-    shader->setInt("texture2", 1);
+
 }
 
 
@@ -151,8 +139,6 @@ void onDraw() {
     // bind textures on corresponding texture units
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture2);
 
     shader->use();
     glBindVertexArray(VAO);

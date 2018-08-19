@@ -15,6 +15,7 @@ int main() {
     }
 
     onCreate();
+    glfwSwapInterval(1);
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
