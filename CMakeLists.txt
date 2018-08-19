@@ -7,7 +7,7 @@ set(path "C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/lib")
 
 set(SOURCE_FILES
         main.cpp
-        glad.c texture2.cpp util.cc shader.cpp)
+        glad.c texture2.cpp util.cc shader.cpp screenshot.c)
 add_executable(gl_start ${SOURCE_FILES})
 
 find_package(OpenGL REQUIRED)
