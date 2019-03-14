@@ -53,6 +53,7 @@ GLFWwindow *initGL() {
 static Shader *shader;
 static unsigned int VBO, VAO, EBO;
 static unsigned int texture1;
+GLint myColor;
 
 void onCreate() {
 
@@ -105,31 +106,32 @@ void onCreate() {
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-    unsigned char *data = stbi_load("res/container.jpg", &width, &height,
+    unsigned char *data = stbi_load("res/awesomeface.png", &width, &height,
                                     &nrChannels, 0);
     if (!data) {
         std::cout << "Failed to load texture" << std::endl;
         exit(1);
     }
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    std::cout << "nrChannels: " << nrChannels << std::endl;
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
 
     // sub texture
     // ---------
     // load image, create texture and generate mipmaps
-    data = stbi_load("res/icon.png", &width, &height, &nrChannels,
-                     0);
-    if (!data) {
-        std::cout << "Failed to load texture" << std::endl;
-        exit(1);
-    }
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-                    width, height,
-                    GL_RGBA,
-                    GL_UNSIGNED_BYTE,
-                    (void*)data);
-
+//    data = stbi_load("res/icon.png", &width, &height, &nrChannels,
+//                     0);
+//    if (!data) {
+//        std::cout << "Failed to load texture" << std::endl;
+//        exit(1);
+//    }
+//    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+//                    width, height,
+//                    GL_RGBA,
+//                    GL_UNSIGNED_BYTE,
+//                    (void *) data);
 
 }
 
@@ -140,7 +142,15 @@ void onDraw() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
 
+    myColor = glGetUniformLocation(shader->ID, "myColor");
+
     shader->use();
+
+    float timeValue = glfwGetTime();
+    float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+
+    glUniform3f(myColor, 0, greenValue, 0);
+
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

@@ -23,10 +23,8 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
-
-        glClearColor(1.0f, 0.3f, 0.3f, 0.3f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
         onDraw();
 
         glfwSwapBuffers(window);
